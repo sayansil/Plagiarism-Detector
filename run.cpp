@@ -265,7 +265,7 @@ int main() {
 
     if ((dir = opendir (target_folder)) != NULL) {
         while ((dir_object = readdir (dir)) != NULL)
-            if(endswith(std::string(dir_object->d_name), "txt")){
+            if(endswith(std::string(dir_object->d_name), ".txt")){
                 printf ("\nPlagiarism scores for %s\n", dir_object->d_name);
                 target_file = target_folder + std::string("/") + dir_object->d_name;
 
@@ -276,7 +276,7 @@ int main() {
 
                 if ((dirB = opendir (database)) != NULL) {
                     while ((dir_object = readdir (dirB)) != NULL)
-                        if(endswith(std::string(dir_object->d_name), "txt")){
+                        if(endswith(std::string(dir_object->d_name), ".txt")){
                             base_file = database + std::string("/") + dir_object->d_name;
                             
                             base = getfile(base_file);
