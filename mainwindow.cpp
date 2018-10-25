@@ -18,7 +18,7 @@
 static const int score_accuracy = 1;
 static const int number_of_tests = 3;
 
-static const char * stopwords_file = "/media/sayan/Data/Programmer/Plagiarism/stopwords.txt";
+static const char * stopwords_file = "stop_words.txt";
 static const char * github_repo = "https://github.com/sayansil/Plagiarism-Detector";
 static const char * linkedin_bio = "https://www.linkedin.com/in/sayansil";
 
@@ -263,7 +263,6 @@ double get_verdict(std::vector<double> t, std::vector<int> weights, std::vector<
 
 void MainWindow::on_pushButton_clicked()
 {
-    //"/media/sayan/Data/Programmer/Plagiarism/database"
     const char * database = (ui->lineEdit->text()).toUtf8().constData();
     std::ofstream cachefile;
     cachefile.open ("cachefile.txt");
