@@ -10,7 +10,7 @@
 #include <dirent.h>
 #include <cctype>
 #include <map>
-#include <experimental/filesystem>
+#include <sstream>
 
 char const * database = "/media/sayan/Data/Programmer/Plagiarism/database";
 char const * target_folder = "/media/sayan/Data/Programmer/Plagiarism/target";
@@ -72,6 +72,11 @@ std::map<std::string, int> get_frequency(std::vector<std::string> tokens) {
     }
 
     return freqs;
+}
+
+std::vector<std::string> string_to_token(std::string str) {
+    std::istringstream mstream(str);
+    return std::vector<std::string>(std::istream_iterator<std::string>{mstream}, std::istream_iterator<std::string>{});
 }
 
 float ngram_score(std::vector<std::string> base, std::vector<std::string> target, int n) {
@@ -214,11 +219,8 @@ int main() {
                             
                             base = getfile(base_file);
 
-                            std::istringstream bstream(base);
-                            std::vector<std::string> b_tokens{std::istream_iterator<std::string>{bstream}, std::istream_iterator<std::string>{}};
-
-                            std::istringstream tstream(target);
-                            std::vector<std::string> t_tokens{std::istream_iterator<std::string>{tstream}, std::istream_iterator<std::string>{}};
+                            auto b_tokens = string_to_token(base);
+                            auto t_tokens = string_to_token(target);
 
                             test1 = std::max(test1, tokenize_test(b_tokens, t_tokens));
                             test2 = std::max(test2, ngram_test(b_tokens, t_tokens));
