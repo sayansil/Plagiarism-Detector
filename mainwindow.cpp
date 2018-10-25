@@ -18,9 +18,9 @@
 static const int score_accuracy = 1;
 static const int number_of_tests = 3;
 
-static const char * stopwords_file = ":/icons/stopwords.txt";
-static const char * github_repo = "https://github.com/sayansil/Plagiarism-Detector";
-static const char * linkedin_bio = "https://www.linkedin.com/in/sayansil";
+static QString stopwords_file = ":/icons/stopwords.txt"; //"/media/sayan/Data/Programmer/Plagiarism/stopwords.txt";
+static QString github_repo = "https://github.com/sayansil/Plagiarism-Detector";
+static QString linkedin_bio = "https://www.linkedin.com/in/sayansil";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -149,10 +149,30 @@ double ngram_score(std::vector<std::string> base, std::vector<std::string> targe
     return 1.0 * shared / total;
 }
 
+std::vector<std::string> get_stopwords() {
+    std::vector<std::string> output;
+    QString temp;
+
+    QFile file(stopwords_file);
+    if(!file.open(QIODevice::ReadOnly)) {
+        qDebug()<<"filenot opened"<<endl;
+    }
+    else
+    {
+        qDebug()<<"file opened"<<endl;
+        temp = file.readAll();
+    }
+
+    file.close();
+
+    output = string_to_token(temp.toUtf8().constData());
+
+    return output;
+}
+
 double tokenize_test(std::vector<std::string> b_tokens, std::vector<std::string> t_tokens) {
-    std::ifstream infile(stopwords_file);
-    std::string stopword;
-    while (infile >> stopword){
+    auto stopwords = get_stopwords();
+    for(auto & stopword: stopwords) {
         t_tokens.erase(std::remove(t_tokens.begin(), t_tokens.end(), stopword), t_tokens.end());
     }
 
@@ -191,9 +211,8 @@ double ngram_test(std::vector<std::string> b_tokens, std::vector<std::string> t_
 }
 
 double cosine_test(std::vector<std::string> b_tokens, std::vector<std::string> t_tokens) {
-    std::ifstream infile(stopwords_file);
-    std::string stopword;
-    while (infile >> stopword) {
+    auto stopwords = get_stopwords();
+    for(auto & stopword: stopwords) {
         t_tokens.erase(std::remove(t_tokens.begin(), t_tokens.end(), stopword), t_tokens.end());
         b_tokens.erase(std::remove(b_tokens.begin(), b_tokens.end(), stopword), b_tokens.end());
     }
