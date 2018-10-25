@@ -7,13 +7,14 @@
 #include <streambuf>
 #include <algorithm>
 #include <iterator>
+#include <dirent.h>
 #include <cctype>
 #include <map>
 #include <experimental/filesystem>
 
-std::string database = "/media/sayan/Data/Programmer/Plagiarism/database";
-std::string target_folder = "/media/sayan/Data/Programmer/Plagiarism/target";
-std::string stopwords_file = "/media/sayan/Data/Programmer/Plagiarism/stopwords.txt";
+char const * database = "/media/sayan/Data/Programmer/Plagiarism/database";
+char const * target_folder = "/media/sayan/Data/Programmer/Plagiarism/target";
+char const * stopwords_file = "/media/sayan/Data/Programmer/Plagiarism/stopwords.txt";
 
 int score_accuracy = 1;
 
@@ -47,15 +48,13 @@ void cleanString(std::string& str) {
 }
 
 std::string getfile(std::string filepath) {
-    std::ifstream mFile;
-    std::stringstream strStream;
+    std::ifstream mFile(filepath);
     std::string output;
+    std::string temp;
 
-    mFile.open(filepath);
-    strStream << mFile.rdbuf();
-    output = strStream.str();
-    strStream.str(std::string());
-    mFile.close();
+    while (mFile >> temp){
+        output += std::string(" ") + temp;
+    }
 
     cleanString(output);
     return output;
@@ -186,43 +185,53 @@ float cosine_test(std::vector<std::string> b_tokens, std::vector<std::string> t_
 }
 
 int main() {
-    namespace filemanager = std::experimental::filesystem;
-
+    DIR *dir;
+    DIR *dirB;
+    struct dirent *dir_object;
+    
     std::string target_file;
     std::string base_file;
 
     std::string target;
     std::string base;
 
-    for (auto & target_file_obj : filemanager::directory_iterator(target_folder)) {
-        target_file = target_file_obj.path();
-        if(endswith(target_file, "txt")){
-            std::cout<<"\nPlagiarism scores for "<<target_file.substr(target_file.find_last_of("/")+1)<<std::endl;
-            target = getfile(target_file);
-            float test1 = 0;
-            float test2 = 0;
-            float test3 = 0;
-            
-            for(auto & base_file_obj : filemanager::directory_iterator(database)) {
-                base_file = base_file_obj.path();
-                if(endswith(base_file, "txt")) {
-                    base = getfile(base_file);
+    if ((dir = opendir (target_folder)) != NULL) {
+        while ((dir_object = readdir (dir)) != NULL)
+            if(endswith(std::string(dir_object->d_name), "txt")){
+                printf ("\nPlagiarism scores for %s\n", dir_object->d_name);
+                target_file = target_folder + std::string("/") + dir_object->d_name;
 
-                    std::istringstream bstream(base);
-                    std::vector<std::string> b_tokens{std::istream_iterator<std::string>{bstream}, std::istream_iterator<std::string>{}};
+                target = getfile(target_file);
+                float test1 = 0;
+                float test2 = 0;
+                float test3 = 0;
 
-                    std::istringstream tstream(target);
-                    std::vector<std::string> t_tokens{std::istream_iterator<std::string>{tstream}, std::istream_iterator<std::string>{}};
 
-                    test1 = std::max(test1, tokenize_test(b_tokens, t_tokens));
-                    test2 = std::max(test2, ngram_test(b_tokens, t_tokens));
-                    test3 = std::max(test3, cosine_test(b_tokens, t_tokens));
+                if ((dirB = opendir (database)) != NULL) {
+                    while ((dir_object = readdir (dirB)) != NULL)
+                        if(endswith(std::string(dir_object->d_name), "txt")){
+                            base_file = database + std::string("/") + dir_object->d_name;
+                            
+                            base = getfile(base_file);
+
+                            std::istringstream bstream(base);
+                            std::vector<std::string> b_tokens{std::istream_iterator<std::string>{bstream}, std::istream_iterator<std::string>{}};
+
+                            std::istringstream tstream(target);
+                            std::vector<std::string> t_tokens{std::istream_iterator<std::string>{tstream}, std::istream_iterator<std::string>{}};
+
+                            test1 = std::max(test1, tokenize_test(b_tokens, t_tokens));
+                            test2 = std::max(test2, ngram_test(b_tokens, t_tokens));
+                            test3 = std::max(test3, cosine_test(b_tokens, t_tokens));
+                        }
+                    closedir (dirB);
                 }
-            }
 
-            printf("Test 1 score: %.1f/10\n", test1);
-            printf("Test 2 score: %.1f/10\n", test2);
-            printf("Test 3 score: %.1f/10\n", test3);
-        }
+                printf("Test 1 score: %.1f/10\n", test1);
+                printf("Test 2 score: %.1f/10\n", test2);
+                printf("Test 3 score: %.1f/10\n", test3);
+            }
+                
+        closedir (dir);
     }
 }
