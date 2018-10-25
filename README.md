@@ -12,15 +12,3 @@ Uses naive methods to detect observable plagiarism in text files.
 
 #### 3. Cosine matching
 >Cosine of the angle between the vectors obtained from the target and the base text files is computed to estimate the simiilarity in the token vectors of both the files.
-
-
-## Getting started
-**1.**   Place all the reference text files in the **database** directory.
-
-**2.**   Place all the text files required to be checked in the **target** directory.
-
-**3.**   *(Optional)* Edit the `stopwords.txt` text file as per requirement, to add words which are to be ignored in the analysis.
-
-**4.**   Compile `run.cpp` in C++11 (or above), with the command `g++ run.cpp -std=c++11`.
-
-**5.**   Run the generated executable with the command `./a.out` *(in Linux environment).*
