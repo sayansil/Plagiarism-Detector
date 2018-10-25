@@ -21,6 +21,8 @@ Uses naive methods to detect observable plagiarism in text files.
 
 **3.**   *(Optional)* Edit the `stopwords.txt` text file as per requirement, to add words which are to be ignored in the analysis.
 
-**4.**   Compile `run.cpp` in C++11 (or above), with the command `g++ run.cpp -std=c++11`.
+**4.**   Change the `database` and `target_folder` variables with the actual location of them.
 
-**5.**   Run the generated executable with the command `./a.out` *(in Linux environment).*
+**5.**   Compile `run.cpp` in C++11 (or above), with the command `g++ run.cpp -std=c++11`.
+
+**6.**   Run the generated executable with the command `./a.out` *(in Linux environment).*
