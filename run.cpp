@@ -7,18 +7,27 @@
 #include <dirent.h>
 #include <map>
 #include <sstream>
+#include <iomanip>
 
 char const * database = "/media/sayan/Data/Programmer/Plagiarism/database";
 char const * target_folder = "/media/sayan/Data/Programmer/Plagiarism/target";
 char const * stopwords_file = "/media/sayan/Data/Programmer/Plagiarism/stopwords.txt";
 
 int score_accuracy = 1;
+int number_of_tests = 3;
 
 float dot_product(std::vector<int> a, std::vector<int> b) {
     float sum = 0 ;
     for(int i=0; i<a.size(); i++)
         sum += a[i] * b[i];
     return sum;
+}
+
+float sum(std::vector<int> v) {
+    float sumv = 0;
+    for (auto& n : v)
+        sumv += n;
+    return sumv;
 }
 
 float get_multiplier(std::string word) {
@@ -142,11 +151,16 @@ float tokenize_test(std::vector<std::string> b_tokens, std::vector<std::string> 
 }
 
 float ngram_test(std::vector<std::string> b_tokens, std::vector<std::string> t_tokens) {
-    float ng3 = ngram_score(b_tokens, t_tokens, 3);
-    float ng5 = ngram_score(b_tokens, t_tokens, 5);
-    float ng7 = ngram_score(b_tokens, t_tokens, 7);
+    std::vector<int> tests {3, 5, 7};
+    std::vector<int> weights {3, 5, 7};
 
-    float score = 10 * pow((ng7*7 + ng5*5 +ng3*3)/15, 0.4);
+    std::vector<float> ngresults;
+
+    ngresults.push_back(ngram_score(b_tokens, t_tokens, 3));
+    ngresults.push_back(ngram_score(b_tokens, t_tokens, 5));
+    ngresults.push_back(ngram_score(b_tokens, t_tokens, 7));
+
+    float score = 10 * pow((ngresults[0]*weights[0] + ngresults[1]*weights[1] + ngresults[2]*weights[2])/sum(weights), 0.4);
     return score;
 }
 
@@ -192,6 +206,50 @@ float cosine_test(std::vector<std::string> b_tokens, std::vector<std::string> t_
     return score;
 }
 
+void get_verdict(std::vector<float> t, std::vector<std::string> m) {
+    std::vector<int> weights (t.size(), 0);
+    
+    /**************************
+        test1 - tokenize test
+        test2 - ngram test
+        test3 - cosine test
+    ***************************/
+
+    weights[0] = 3;
+    weights[1] = 4;
+    weights[2] = 3;
+
+    float final_score = (t[0]*weights[0] + t[1]*weights[1] + t[2]*weights[2])/sum(weights);
+    std::string verdict;
+
+    if(final_score < 1)
+        verdict = "Not plagiarised";
+    else if(final_score < 5)
+        verdict = "Slightly plagiarised";
+    else if(final_score < 8)
+        verdict = "Fairly plagiarised";
+    else
+        verdict = "Highly plagiarised";
+
+    m.erase( remove( m.begin(), m.end(), "" ), m.end() );
+    sort( m.begin(), m.end() );
+    m.erase( unique( m.begin(), m.end() ), m.end() );
+
+    std::cout<<"********************************************"<<std::endl;
+    std::cout<<"\tFinal score: "<<final_score<<std::endl;
+    std::cout<<"\tVerdict: "<<verdict<<std::endl;
+    if(verdict != "Not plagiarised") {
+        std::cout<<"\tMatch found in:"<<std::endl;
+        if(m.size() == 0)
+            std::cout<<"\t-nil-"<<std::endl;
+        for (auto const & file : m)
+            std::cout<<"\t\t"<<file<<std::endl;
+    }
+    
+    std::cout<<"********************************************"<<std::endl;
+
+}
+
 int main() {
     DIR *dir;
     DIR *dirB;
@@ -203,6 +261,8 @@ int main() {
     std::string target;
     std::string base;
 
+    float temp;
+
     if ((dir = opendir (target_folder)) != NULL) {
         while ((dir_object = readdir (dir)) != NULL)
             if(endswith(std::string(dir_object->d_name), "txt")){
@@ -210,10 +270,9 @@ int main() {
                 target_file = target_folder + std::string("/") + dir_object->d_name;
 
                 target = getfile(target_file);
-                float test1 = 0;
-                float test2 = 0;
-                float test3 = 0;
 
+                std::vector<float> test(number_of_tests, 0.0);
+                std::vector<std::string> match(number_of_tests, "");
 
                 if ((dirB = opendir (database)) != NULL) {
                     while ((dir_object = readdir (dirB)) != NULL)
@@ -225,16 +284,33 @@ int main() {
                             auto b_tokens = string_to_token(base);
                             auto t_tokens = string_to_token(target);
 
-                            test1 = std::max(test1, tokenize_test(b_tokens, t_tokens));
-                            test2 = std::max(test2, ngram_test(b_tokens, t_tokens));
-                            test3 = std::max(test3, cosine_test(b_tokens, t_tokens));
+                            temp = tokenize_test(b_tokens, t_tokens);
+                            if(test[0] < temp) {
+                                test[0] = temp;
+                                match[0] = dir_object->d_name;
+                            }
+                            temp = ngram_test(b_tokens, t_tokens);
+                            if(test[1] < temp) {
+                                test[1] = temp;
+                                match[1] = dir_object->d_name;
+                            }
+                            temp = cosine_test(b_tokens, t_tokens);
+                            if(test[2] < temp) {
+                                test[2] = temp;
+                                match[2] = dir_object->d_name;
+                            }
+
                         }
                     closedir (dirB);
                 }
 
-                printf("Test 1 score: %.1f/10\n", test1);
-                printf("Test 2 score: %.1f/10\n", test2);
-                printf("Test 3 score: %.1f/10\n", test3);
+                std::cout<<"Test 1 score: "<<std::fixed<<std::setprecision(score_accuracy)<<test[0]<<"/10"<<std::endl;
+                std::cout<<"Test 2 score: "<<std::fixed<<std::setprecision(score_accuracy)<<test[1]<<"/10"<<std::endl;
+                std::cout<<"Test 3 score: "<<std::fixed<<std::setprecision(score_accuracy)<<test[2]<<"/10"<<std::endl;
+
+                get_verdict(test, match);
+
+                std::cout<<std::endl;
             }
                 
         closedir (dir);
