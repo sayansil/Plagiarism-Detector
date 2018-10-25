@@ -3,6 +3,8 @@
 #include <QtCore>
 #include <QtGui>
 #include <QMessageBox>
+#include <QDesktopServices>
+#include <QInputDialog>
 #include <vector>
 #include <cmath>
 #include <fstream>
@@ -17,6 +19,8 @@ static const int score_accuracy = 1;
 static const int number_of_tests = 3;
 
 static const char * stopwords_file = "/media/sayan/Data/Programmer/Plagiarism/stopwords.txt";
+static const char * github_repo = "https://github.com/sayansil/Plagiarism-Detector";
+static const char * linkedin_bio = "https://www.linkedin.com/in/sayansil";
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -96,7 +100,6 @@ std::string getfile(std::string filepath) {
         output += std::string(" ") + temp;
     }
 
-    cleanString(output);
     return output;
 }
 
@@ -258,9 +261,6 @@ double get_verdict(std::vector<double> t, std::vector<int> weights, std::vector<
     return final_score;
 }
 
-
-
-
 void MainWindow::on_pushButton_clicked()
 {
     //"/media/sayan/Data/Programmer/Plagiarism/database"
@@ -288,10 +288,11 @@ void MainWindow::on_pushButton_clicked()
 
     if ((dirB = opendir (database)) != NULL) {
         while ((dir_object = readdir (dirB)) != NULL)
-            if(endswith(std::string(dir_object->d_name), "txt")){
+            if(endswith(std::string(dir_object->d_name), ".txt")){
                 base_file = database + std::string("/") + dir_object->d_name;
 
                 base = getfile(base_file);
+                cleanString(base);
 
                 auto b_tokens = string_to_token(base);
                 auto t_tokens = string_to_token(target);
@@ -347,4 +348,32 @@ void MainWindow::on_pushButton_clicked()
     }
 
     ui->label_3->setText(QString::fromStdString(final_score));
+}
+
+void MainWindow::on_actionProject_triggered()
+{
+    QDesktopServices::openUrl (QUrl(github_repo));
+}
+
+void MainWindow::on_actionDeveloper_triggered()
+{
+    QDesktopServices::openUrl (QUrl(linkedin_bio));
+
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    this->close();
+}
+
+void MainWindow::on_actionNew_File_triggered()
+{
+    std::string target_file = QInputDialog::getText(this, "File Path", "Enter the path of text file to be evaluated").toUtf8().constData();
+    if(!endswith(target_file, ".txt"))
+    {
+        QMessageBox::critical(this, "Invalid file type", "Files with \".txt\" extensions are supported");
+    } else {
+        std::string target = getfile(target_file);
+        ui->textEdit->setText(QString::fromStdString(target));
+    }
 }

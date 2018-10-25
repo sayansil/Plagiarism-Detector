@@ -223,20 +223,56 @@
     <addaction name="actionProject"/>
     <addaction name="actionDeveloper"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew_File"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
   </widget>
   <action name="actionProject">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/icons/icons/code.png</normaloff>:/icons/icons/code.png</iconset>
+   </property>
    <property name="text">
     <string>Project</string>
    </property>
   </action>
   <action name="actionDeveloper">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/icons/icons/dev.png</normaloff>:/icons/icons/dev.png</iconset>
+   </property>
    <property name="text">
     <string>Developer</string>
    </property>
   </action>
+  <action name="actionNew_File">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/icons/icons/file.png</normaloff>:/icons/icons/file.png</iconset>
+   </property>
+   <property name="text">
+    <string>Insert File</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/icons/icons/exit.png</normaloff>:/icons/icons/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>
