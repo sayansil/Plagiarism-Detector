@@ -1,14 +1,10 @@
 #include <iostream>
 #include <vector>
-#include <numeric>
 #include <cmath>
-#include <math.h>
 #include <fstream>
-#include <streambuf>
 #include <algorithm>
 #include <iterator>
 #include <dirent.h>
-#include <cctype>
 #include <map>
 #include <sstream>
 
@@ -18,14 +14,21 @@ char const * stopwords_file = "/media/sayan/Data/Programmer/Plagiarism/stopwords
 
 int score_accuracy = 1;
 
+float dot_product(std::vector<int> a, std::vector<int> b) {
+    float sum = 0 ;
+    for(int i=0; i<a.size(); i++)
+        sum += a[i] * b[i];
+    return sum;
+}
+
 float get_multiplier(std::string word) {
     return word.length() * word.length();
 }
 
 float cosine_score(std::vector<int> bvector, std::vector<int> tvector) {
-    return std::inner_product(bvector.begin(), bvector.end(), tvector.begin(), 0) / 
-            (   std::sqrt(std::inner_product(bvector.begin(), bvector.end(), bvector.begin(), 0)) * 
-                std::sqrt(std::inner_product(tvector.begin(), tvector.end(), tvector.begin(), 0))   );
+    return dot_product(bvector, tvector) / 
+            (   sqrt(dot_product(bvector, bvector)) * 
+                sqrt(dot_product(tvector, tvector)) );
 }
 
 bool endswith (std::string const &fullString, std::string const &ending) {
