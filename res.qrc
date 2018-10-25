@@ -4,5 +4,6 @@
         <file>icons/code.png</file>
         <file>icons/file.png</file>
         <file>icons/exit.png</file>
+        <file>stopwords.txt</file>
     </qresource>
 </RCC>

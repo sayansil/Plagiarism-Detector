@@ -18,7 +18,7 @@
 static const int score_accuracy = 1;
 static const int number_of_tests = 3;
 
-static const char * stopwords_file = "stop_words.txt";
+static const char * stopwords_file = ":/icons/stopwords.txt";
 static const char * github_repo = "https://github.com/sayansil/Plagiarism-Detector";
 static const char * linkedin_bio = "https://www.linkedin.com/in/sayansil";
 

@@ -27,5 +27,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     res.qrc
 
-DISTFILES += \
-    stop_words.txt
+DISTFILES +=
