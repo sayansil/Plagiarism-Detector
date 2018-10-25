@@ -13,7 +13,7 @@ Uses naive methods to detect observable plagiarism in text files.
 #### 3. Cosine matching
 >Cosine of the angle between the vectors obtained from the target and the base text files is computed to estimate the simiilarity in the token vectors of both the files.
 
-##Getting Started
+## Getting Started
 
 **1.**  `cd` into the project directory containing the `Plagiarism_Scoreboard.pro` file.
 
